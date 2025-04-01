@@ -1,29 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { GameEngine } from 'react-native-game-engine';
-import entities from './entities';
-import Physics from './Physics';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useFonts } from 'expo-font';
+
+import HomeScreen from './screens/HomeScreen';
+import GameScreen from './screens/GameScreen';
+import IntroScreen from './screens/IntroScreen';
+import { View } from 'react-native';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-	return (
-		<View style={styles.container}>
-			<GameEngine entities={entities()} systems={[Physics]} style={styles.gameContainer}></GameEngine>
-		</View>
-	);
-}
+  const [fontsLoaded] = useFonts({
+    'Jaro-Regular': require('./assets/fonts/Jaro-Regular-VariableFont_opsz.ttf'),
+  });
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	gameContainer: {
-		position: 'absolute',
-		top: 0,
-		left: 0,
-		right: 0,
-		bottom: 0,
-	},
-});
+  if (!fontsLoaded) {
+    return <View style={{ flex: 1, backgroundColor: '#000' }} />;
+  }
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Intro" component={IntroScreen} />
+        <Stack.Screen name="Game" component={GameScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
