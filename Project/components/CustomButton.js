@@ -27,13 +27,18 @@ const CustomButton = ({
   type = 'primary',
   disabled = false,
   icon,
+  onBtnPress = null,
 }) => {
   const navigation = useNavigation();
   const { backgroundColor, textColor, shadowColor } =
     BUTTON_STYLES[type] || BUTTON_STYLES.primary;
 
   const handlePress = () => {
-    if (!disabled && to) navigation.navigate(to);
+    if (onBtnPress) {
+      onBtnPress();
+    } else if (!disabled && to) {
+      navigation.navigate(to);
+    }
   };
 
   return (

@@ -11,6 +11,8 @@ const Images = {
   Meteor3: require('../assets/meteor3.png'),
   cardTab: require('../assets/cardTab.png'),
   coinScore: require('../assets/coinScore.png'),
+  closeBtn: require('../assets/closeBtn.png'),
+  gameCoin: require('../assets/gameCoin.png'),
 };
 
 export default Images;

@@ -31,13 +31,14 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
     marginBottom: 32,
+    zIndex: 3,
   },
   tab: {
     width: 361,
     height: 104,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 2,
+    zIndex: 4,
   },
   tabText: {
     fontFamily: 'Jaro-Regular',
