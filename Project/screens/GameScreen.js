@@ -11,25 +11,64 @@ import entities from '../entities';
 import Physics from '../Physics';
 import IMAGES from '../constants/Images';
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PauseOverlay from '../components/PauseOverlay';
+import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
 
 const GameScreen = () => {
   const [score, setScore] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [isSoundOn, setIsSoundOn] = useState(false);
   const navigation = useNavigation();
+  const [sound, setSound] = useState(null);
 
   const handlePauseToggle = () => {
     setPaused((prev) => !prev);
   };
 
+  const toggleSound = async () => {
+    setIsSoundOn((prev) => !prev);
+    if (sound) {
+      console.log(sound);
+      if (isSoundOn) {
+        await sound.pauseAsync();
+      } else {
+        await sound.playAsync();
+      }
+    }
+  };
+
   const onEvent = (e) => {
     if (e.type === 'game-over') {
       navigation.navigate('GameOver', { score });
+      sound && sound.unloadAsync();
     }
   };
 
   const systems = [Physics];
+
+  useEffect(() => {
+    const loadSound = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sound.mp3'),
+        {
+          isLooping: true,
+          volume: 0.6,
+          shouldPlay: isSoundOn,
+        }
+      );
+      setSound(sound);
+
+      if (isSoundOn) await sound.playAsync();
+    };
+
+    loadSound();
+
+    return () => {
+      sound && sound.unloadAsync();
+    };
+  }, []);
 
   return (
     <ImageBackground source={IMAGES.Background} style={styles.background}>
@@ -56,10 +95,17 @@ const GameScreen = () => {
                 </View>
               </View>
             </Pressable>
+            <Pressable style={styles.soundButton} onPress={toggleSound}>
+              <Ionicons
+                name={isSoundOn ? 'volume-high' : 'volume-mute'}
+                size={28}
+                color="#fff"
+              />
+            </Pressable>
           </>
         )}
         <GameEngine
-          entities={entities({setScore})}
+          entities={entities({ setScore })}
           running={!paused}
           systems={systems}
           style={styles.gameContainer}
@@ -83,6 +129,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 48,
+  },
+  soundButton: {
+    position: 'absolute',
+    top: 120,
+    right: 30,
+    zIndex: 2,
   },
 
   gameContainer: {
