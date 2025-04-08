@@ -1,7 +1,8 @@
-import Matter from 'matter-js';
-import Images from './constants/Images';
-import Meteor from './components/Meteor';
-import Variables from './constants/Variables';
+import Matter from "matter-js";
+import Images from "./constants/Images";
+import Meteor from "./components/Meteor";
+import Variables from "./constants/Variables";
+import { createCoin } from "./entities";
 
 const WINDOW_WIDTH = Variables.WINDOW_WIDTH;
 const WINDOW_HEIGHT = Variables.WINDOW_HEIGHT;
@@ -11,9 +12,9 @@ const Physics = (entities, { touches, time, dispatch }) => {
   const world = engine.world;
 
   let UFO = entities.UFO_RB;
-  let startTouch = touches.find((t) => t.type === 'start');
-  let endTouch = touches.find((t) => t.type === 'end');
-  let moveTouch = touches.find((t) => t.type === 'move');
+  let startTouch = touches.find((t) => t.type === "start");
+  let endTouch = touches.find((t) => t.type === "end");
+  let moveTouch = touches.find((t) => t.type === "move");
   let endX = 0;
   let endY = 0;
   let isEnded = false;
@@ -25,7 +26,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
     entities.isGameOver = false;
   }
 
-  Matter.Events.on(engine, 'collisionStart', (event) => {
+  Matter.Events.on(engine, "collisionStart", (event) => {
     event.pairs.forEach((pair) => {
       const bodyA = pair.bodyA;
       const bodyB = pair.bodyB;
@@ -36,7 +37,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
         );
         if (meteor) {
           entities.isGameOver = true;
-          dispatch({ type: 'game-over' });
+          dispatch({ type: "game-over" });
         }
       }
     });
@@ -53,14 +54,14 @@ const Physics = (entities, { touches, time, dispatch }) => {
 
   if (entities.meteorTimer === undefined) {
     entities.meteorTimer = 0;
-    console.log('Initializing meteor timer');
+    console.log("Initializing meteor timer");
   }
   entities.meteorTimer += time.delta;
-  console.log('Meteor timer:', entities.meteorTimer);
+  console.log("Meteor timer:", entities.meteorTimer);
 
   if (entities.Meteors === undefined) {
     entities.Meteors = [];
-    console.log('Initializing Meteors array');
+    console.log("Initializing Meteors array");
   }
 
   if (!UFO.animation) {
@@ -73,7 +74,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
 
   if (startTouch) {
     console.log(
-      'Touch started at:',
+      "Touch started at:",
       startTouch.event.pageX,
       startTouch.event.pageY
     );
@@ -82,39 +83,42 @@ const Physics = (entities, { touches, time, dispatch }) => {
   }
 
   if (endTouch) {
-    console.log('Touch ended at: ', endTouch.event.pageX, endTouch.event.pageY);
+    console.log("Touch ended at: ", endTouch.event.pageX, endTouch.event.pageY);
     endX = endTouch.event.pageX;
     endY = endTouch.event.pageY;
     isEnded = true;
     console.log(isEnded);
   }
 
+  // swipe direction detection
   function getSwipeDirection(moveX, moveY) {
     const absX = Math.abs(moveX);
     const absY = Math.abs(moveY);
 
     if (absX > absY) {
-      return moveX > 0 ? 'right' : 'left';
+      return moveX > 0 ? "right" : "left";
     } else if (absY > absX) {
-      return moveY > 0 ? 'down' : 'up';
+      return moveY > 0 ? "down" : "up";
     }
   }
+
+  // Move UFO to the new grid based on swipe direction
 
   function moveUFOGrid(direction, currentGrid) {
     let row = Math.floor(currentGrid / 3);
     let col = currentGrid % 3;
 
     switch (direction) {
-      case 'up':
+      case "up":
         if (row > 0) row--; // Move up if not at top
         break;
-      case 'down':
+      case "down":
         if (row < 2) row++; // Move down if not at bottom
         break;
-      case 'left':
+      case "left":
         if (col > 0) col--; // Move left if not at left edge
         break;
-      case 'right':
+      case "right":
         if (col < 2) col++; // Move right if not at right edge
         break;
     }
@@ -122,6 +126,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
     return row * 3 + col;
   }
 
+  // and update its position accordingly
   function updateUFOPosition(ufo, newGrid) {
     const position = ufo.gridPos[newGrid];
     const xPos = position[0] + ufo.size.width / 2;
@@ -136,9 +141,9 @@ const Physics = (entities, { touches, time, dispatch }) => {
     // console.log('Moved: ', moveX, moveY);
     let direction = getSwipeDirection(moveX, moveY);
     let currentGrid = UFO.currentGrid;
-    console.log('Current grid before:', currentGrid);
+    console.log("Current grid before:", currentGrid);
     UFO.currentGrid = moveUFOGrid(direction, currentGrid);
-    console.log('Current grid after: ', currentGrid);
+    console.log("Current grid after: ", currentGrid);
     updateUFOPosition(UFO, UFO.currentGrid);
 
     startX = 0;
@@ -162,18 +167,18 @@ const Physics = (entities, { touches, time, dispatch }) => {
   }
 
   if (entities.meteorTimer >= METEOR_INTERVAL) {
-    console.log('Meteor timer reached. Creating meteor...');
-    console.log('Current number of meteors:', entities.Meteors.length);
+    console.log("Meteor timer reached. Creating meteor...");
+    console.log("Current number of meteors:", entities.Meteors.length);
 
     entities.meteorTimer = 0;
-    const direction = Math.random() > 0.5 ? 'vertical' : 'horizontal';
+    const direction = Math.random() > 0.5 ? "vertical" : "horizontal";
     const randomNum = Math.floor(Math.random() * 3) + 1;
     const meteorImage = Images[`Meteor${randomNum}`];
 
     const size = { width: 50, height: 100 };
 
     let x, y, velocity, angle;
-    if (direction === 'vertical') {
+    if (direction === "vertical") {
       const column = Math.floor(Math.random() * 3);
       x = UFO.gridPos[column][0] + UFO.size.width / 2;
       y = -size.height;
@@ -207,7 +212,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
 
     entities.Meteors.push(meteor);
     console.log(
-      'Meteor created and added. Total meteors:',
+      "Meteor created and added. Total meteors:",
       entities.Meteors.length
     );
   }
@@ -225,6 +230,37 @@ const Physics = (entities, { touches, time, dispatch }) => {
     }
     return isOnScreen;
   });
+
+  //coin functionality
+  const ufoBody = entities.UFO_RB.body;
+  const coinBody = entities.Coin?.body;
+
+  if (coinBody) {
+    const dx = ufoBody.position.x - coinBody.position.x;
+    const dy = ufoBody.position.y - coinBody.position.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    console.log("Distance between UFO and coin:", distance);
+
+    if (distance < 30) {
+      // Adjust collision radius
+      Matter.World.remove(entities.physics.world, coinBody); // Remove coin from world
+      delete entities.Coin; // Remove from entities
+
+      // Update score
+      if (entities.setScore){
+        entities.setScore((prev) => prev + 1);
+      }
+      
+
+      // Spawn new coin
+      const newCoin = createCoin(
+        entities.physics.world,
+        entities.UFO_RB.gridPos,
+        entities.UFO_RB.size
+      );
+      entities.Coin = newCoin;
+    }
+  }
 
   Matter.Engine.update(engine, time.delta);
 

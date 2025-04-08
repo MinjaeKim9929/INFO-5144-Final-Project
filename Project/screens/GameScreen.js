@@ -59,7 +59,7 @@ const GameScreen = () => {
           </>
         )}
         <GameEngine
-          entities={entities()}
+          entities={entities({setScore})}
           running={!paused}
           systems={systems}
           style={styles.gameContainer}

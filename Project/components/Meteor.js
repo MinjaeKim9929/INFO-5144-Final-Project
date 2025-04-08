@@ -8,7 +8,7 @@ const Meteor = (props) => {
 	const xPos = props.body.position.x - width / 2;
 	const yPos = props.body.position.y - height / 2;
 
-	console.log('Rendering meteor at position:', { xPos, yPos });
+	
 
 	return (
 		<View

@@ -13,6 +13,7 @@ const Images = {
   coinScore: require('../assets/coinScore.png'),
   closeBtn: require('../assets/closeBtn.png'),
   gameCoin: require('../assets/gameCoin.png'),
+  Coin: require('../assets/coin.png'),
 };
 
 export default Images;
