@@ -8,8 +8,6 @@ const Meteor = (props) => {
 	const xPos = props.body.position.x - width / 2;
 	const yPos = props.body.position.y - height / 2;
 
-	
-
 	return (
 		<View
 			style={{
@@ -18,6 +16,7 @@ const Meteor = (props) => {
 				left: xPos,
 				top: yPos,
 				position: 'absolute',
+				zIndex: 2,
 			}}
 		>
 			<Image

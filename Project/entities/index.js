@@ -11,8 +11,9 @@ const WINDOW_HEIGHT = Variables.WINDOW_HEIGHT;
 const createCoin = (world, gridPositions, size) => {
 	const randomIndex = Math.floor(Math.random() * gridPositions.length);
 	const [x, y] = gridPositions[randomIndex];
+	const coinSize = { width: 40, height: 40 };
 
-	const coin = Matter.Bodies.circle(x + size.width / 2, y + size.height / 2, size.width / 2, {
+	const coin = Matter.Bodies.circle(x + coinSize.width / 2 + 12, y + coinSize.height + 5, coinSize.width / 2, {
 		isSensor: true,
 		isStatic: true,
 		label: 'Coin',
@@ -22,14 +23,14 @@ const createCoin = (world, gridPositions, size) => {
 
 	return {
 		body: coin,
-		size,
-		position: { x, y },
+		size: coinSize,
+		position: { x: x, y: y },
 		gridIndex: randomIndex,
 		renderer: <Coin />,
 	};
 };
 
-export default ({setScore, gameWorld}) => {
+export default ({ setScore, gameWorld }) => {
 	let engine = Matter.Engine.create({ enableSleeping: false });
 	let world = engine.world;
 	world.gravity.y = 0;
@@ -46,8 +47,9 @@ export default ({setScore, gameWorld}) => {
 		Coin: CoinEntity,
 		Meteors: [],
 		meteorTimer: 0,
+		coinRespawnTimer: 0,
 		setScore,
 	};
 };
 
-export {createCoin};
+export { createCoin };
